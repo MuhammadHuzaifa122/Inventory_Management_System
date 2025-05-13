@@ -23,6 +23,10 @@
         </li>
 
         <li class="nav-item">
+          <%= link_to "Stock In/Out", new_inventory_log_path, class: 'nav-link' %>
+        </li>
+
+        <li class="nav-item">
           <%= button_to 'Sign Out', destroy_user_session_path, method: :delete, class: "btn btn-link nav-link" %>
         </li>
       <% else %>

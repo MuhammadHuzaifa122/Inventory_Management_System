@@ -1,4 +1,5 @@
 class Product < ApplicationRecord
+  has_many :inventory_logs, dependent: :destroy
   belongs_to :category
 
   validates :category_id, presence: true
@@ -6,10 +7,9 @@ class Product < ApplicationRecord
   validates :sku, uniqueness: true
   validates :price, numericality: { greater_than_or_equal_to: 0 }
   validates :stock, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
-  # Scope to get only active (not deleted) products
+
   default_scope { where(deleted_at: nil) }
 
-  # Scope to get deleted products if needed
   scope :only_deleted, -> { where.not(deleted_at: nil) }
 
 
