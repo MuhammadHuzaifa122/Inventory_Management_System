@@ -25,7 +25,3 @@ class Product < ApplicationRecord
     deleted_at.present?
   end
 end
-
-depend and destroy 
-
-stock module in and out for products 
