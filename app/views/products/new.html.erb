@@ -1,0 +1,55 @@
+<% content_for :title, "New Product" %>
+
+<div class="container mt-5 max-w-2xl mx-auto bg-white shadow-md p-1 rounded">
+  <h1 class="text-3xl font-bold mb-4 text-center">New Product</h1>
+
+  <!-- Error Messages -->
+  <% if @product.errors.any? %>
+    <div class="alert alert-danger">
+      <h4 class="alert-heading">Please fix the following errors:</h4>
+      <ul class="mb-0">
+        <% @product.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= form_with(model: @product, local: true, class: "space-y-4") do |form| %>
+    <div class="form-group">
+      <%= form.label :name, class: "font-semibold" %>
+      <%= form.text_field :name, class: "form-control", placeholder: "Enter product name" %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :sku, class: "font-semibold" %>
+      <%= form.text_field :sku, class: "form-control", placeholder: "Unique SKU code" %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :description, class: "font-semibold" %>
+      <%= form.text_area :description, rows: 3, class: "form-control", placeholder: "Brief product description" %>
+    </div>
+
+  <div class="form-group">
+    <%= form.label :category_id, "Category", class: "font-semibold" %>
+    <%= form.collection_select :category_id, Category.all, :id, :name, { prompt: "Select a category" }, class: "form-control" %>
+  </div>
+
+
+    <div class="form-group">
+      <%= form.label :price, class: "font-semibold" %>
+      <%= form.number_field :price, step: 0.01, class: "form-control", placeholder: "e.g. 499.99" %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :stock, class: "font-semibold" %>
+      <%= form.number_field :stock, class: "form-control", placeholder: "Available stock quantity" %>
+    </div>
+
+    <div class="mt-4 flex justify-between">
+      <%= form.submit "Create Product", class: "btn btn-success" %>
+      <%= link_to 'Back', products_path, class: "btn btn-outline-secondary" %>
+    </div>
+  <% end %>
+</div>

@@ -1,0 +1,39 @@
+<% content_for :title, "Product Details" %>
+
+<div class="container mt-5 max-w-2xl mx-auto bg-white shadow-md p-1 rounded">
+  <h1 class="text-3xl font-bold text-center text-success mb-4"><%= @product.name %></h1>
+
+  <table class="table table-bordered">
+    <tbody>
+      <tr>
+        <th class="bg-light">SKU</th>
+        <td><%= @product.sku %></td>
+      </tr>
+      <tr>
+        <th class="bg-light">Description</th>
+        <td><%= @product.description %></td>
+      </tr>
+      <tr>
+        <th class="bg-light">Category</th>
+        <td><%= @product.category&.name %></td>
+      </tr>
+
+      <tr>
+        <th class="bg-light">Price</th>
+        <td>$<%= number_with_precision(@product.price, precision: 2) %></td>
+      </tr>
+      <tr>
+        <th class="bg-light">Stock</th>
+        <td><%= @product.stock %></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="mt-4 flex space-x-3">
+  <%= link_to 'Edit', edit_product_path(@product), class: "btn btn-warning" %>
+  <%= link_to 'Back', products_path, class: "btn btn-outline-secondary" %>
+</div>
+
+
+
+</div>
