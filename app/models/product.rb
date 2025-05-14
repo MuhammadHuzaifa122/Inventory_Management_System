@@ -14,6 +14,8 @@ class Product < ApplicationRecord
 
   scope :active, -> { where(deleted_at: nil) }
 
+    after_create :log_initial_stock
+
   def soft_delete
     update(deleted_at: Time.current)
   end
@@ -22,7 +24,16 @@ class Product < ApplicationRecord
     update(deleted_at: nil)
   end
 
+
   def deleted?
     deleted_at.present?
   end
+    def log_initial_stock
+    return if stock.zero?
+
+    inventory_logs.create!(
+      quantity: stock,
+      operation: "stock_in"
+    )
+    end
 end
