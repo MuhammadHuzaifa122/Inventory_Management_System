@@ -1,0 +1,22 @@
+<h2>Inventory Movement History</h2>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Product</th>
+      <th>Operation</th>
+      <th>Quantity</th>
+      <th>Timestamp</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @inventory_logs.each do |log| %>
+      <tr>
+        <td><%= log.product&.name || "Deleted Product" %></td>
+        <td><%= log.operation.humanize %></td>
+        <td><%= log.quantity %></td>
+        <td><%= log.created_at.in_time_zone("Asia/Karachi").strftime("%d %b %Y, %I:%M %p") %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

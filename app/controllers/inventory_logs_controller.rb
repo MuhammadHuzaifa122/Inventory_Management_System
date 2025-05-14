@@ -1,7 +1,15 @@
 class InventoryLogsController < ApplicationController
   def new
     @inventory_log = InventoryLog.new
-    @products = Product.all
+    @products = Product.active  # Only active products (not soft-deleted)
+  end
+
+  def index
+    # Fetch only inventory logs related to active (non-deleted) products
+    @inventory_logs = InventoryLog.joins(:product)
+                                  .where(products: { deleted_at: nil })  # Exclude soft-deleted products
+                                  .includes(:product)
+                                  .order(created_at: :desc)
   end
 
   def create
@@ -17,7 +25,7 @@ class InventoryLogsController < ApplicationController
 
       redirect_to products_path, notice: "Stock updated successfully."
     else
-      @products = Product.all
+      @products = Product.active  # Only show active products in the dropdown
       render :new
     end
   end

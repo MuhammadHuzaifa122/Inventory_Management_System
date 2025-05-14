@@ -7,4 +7,5 @@ class InventoryLog < ApplicationRecord
   }
 
   validates :operation, presence: true, inclusion: { in: operations.keys }
+  validates :product, presence: true
 end

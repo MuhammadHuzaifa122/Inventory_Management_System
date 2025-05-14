@@ -12,6 +12,7 @@ class Product < ApplicationRecord
 
   scope :only_deleted, -> { where.not(deleted_at: nil) }
 
+  scope :active, -> { where(deleted_at: nil) }
 
   def soft_delete
     update(deleted_at: Time.current)
