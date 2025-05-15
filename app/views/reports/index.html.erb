@@ -5,12 +5,36 @@
     <label for="report-daterange" class="form-label"><h5>Select Date Range:</h5></label>
     <input type="text" id="report-daterange" class="form-control" placeholder="Choose date range" />
   </div>
+  
+<div class="mb-4">
+  <label for="category-select" class="form-label fw-semibold text-primary">
+    <i class="bi bi-tags-fill me-1"></i> Filter by Category:
+  </label>
+  <div class="input-group shadow-sm">
+    <span class="input-group-text bg-light">
+      <i class="bi bi-funnel-fill text-secondary"></i>
+    </span>
+    <select id="category-select" class="form-select">
+      <option value="">All Categories</option>
+      <% @categories.each do |category| %>
+        <option value="<%= category.id %>" <%= 'selected' if params[:category_id].to_s == category.id.to_s %>>
+          <%= category.name %>
+        </option>
+      <% end %>
+    </select>
+  </div>
+</div>
 
   <div id="report-results">
   <% if @start_date && @end_date %>
-    <h4 class="mb-4">Report from <%= @start_date %> to <%= @end_date %></h4>
+    <h4 class="mb-4">
+  Report from <%= @start_date %> to <%= @end_date %>
+  <% if @selected_category %>
+    for <span class="text-primary"><%= @selected_category.name %></span>
+  <% end %>
+</h4>
 
-    <!-- Stock In Section -->
+
     <div class="card mb-4">
       <div class="card-header bg-success text-white">
         Stock In
@@ -35,7 +59,6 @@
       </ul>
     </div>
 
-    <!-- Stock Out Section -->
     <div class="card mb-4">
       <div class="card-header bg-danger text-white">
         Stock Out
@@ -66,25 +89,30 @@
 
 </div>
 <script>
-  function initDateRangePicker() {
-    const $picker = $('#report-daterange');
-    if ($picker.data('daterangepicker')) {
-      $picker.data('daterangepicker').remove();
-    }
+  document.addEventListener("DOMContentLoaded", function () {
+    const categorySelect = document.getElementById("category-select");
 
-    $picker.daterangepicker({
+    $('#report-daterange').daterangepicker({
       locale: { format: 'YYYY-MM-DD' },
-      opens: 'right',
-      autoApply: false
+      opens: 'left',
+      autoApply: true
     }, function (start, end) {
-      // Redirect with selected date range
-      window.location.href = `/reports?start_date=${start.format('YYYY-MM-DD')}&end_date=${end.format('YYYY-MM-DD')}`;
+      const categoryId = categorySelect.value;
+      const url = `/reports?start_date=${start.format('YYYY-MM-DD')}&end_date=${end.format('YYYY-MM-DD')}&category_id=${categoryId}`;
+      window.location.href = url;
     });
-  }
 
-  document.addEventListener("turbo:load", initDateRangePicker);
-  document.addEventListener("DOMContentLoaded", initDateRangePicker);
+    // If user changes the category dropdown directly:
+    categorySelect.addEventListener("change", function () {
+      const picker = $('#report-daterange').data('daterangepicker');
+      if (picker.startDate && picker.endDate) {
+        const url = `/reports?start_date=${picker.startDate.format('YYYY-MM-DD')}&end_date=${picker.endDate.format('YYYY-MM-DD')}&category_id=${this.value}`;
+        window.location.href = url;
+      }
+    });
+  });
 </script>
+
 
 
 
