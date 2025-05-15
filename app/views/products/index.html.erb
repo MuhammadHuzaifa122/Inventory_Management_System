@@ -1,6 +1,23 @@
 <% content_for :title, "Products" %>
 
+<% if @low_stock_products.any? %>
+  <div class="alert alert-warning alert-dismissible fade show" role="alert">
+    <strong>Low Stock Alert!</strong> The following products have low stock:
+    <ul style="list-style-type: disc; padding-left: 20px;">
+  <% @low_stock_products.each do |product| %>
+    <li><%= product.name %> (Stock: <%= product.stock %>)</li>
+  <% end %>
+</ul>
 
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+<% end %>
+
+
+
+  
   <div class="d-flex justify-content-between mb-4">
     <h1 class="font-weight-bold">Products</h1>
   </div>

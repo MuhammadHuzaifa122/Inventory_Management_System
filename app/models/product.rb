@@ -8,6 +8,10 @@ class Product < ApplicationRecord
   validates :price, numericality: { greater_than_or_equal_to: 0 }
   validates :stock, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
 
+    scope :low_stock, ->(threshold = ENV["LOW_STOCK_THRESHOLD"].to_i) {
+    where("stock <= ?", threshold)
+  }
+
   default_scope { where(deleted_at: nil) }
 
   scope :only_deleted, -> { where.not(deleted_at: nil) }
@@ -23,7 +27,6 @@ class Product < ApplicationRecord
   def restore
     update(deleted_at: nil)
   end
-
 
   def deleted?
     deleted_at.present?

@@ -3,6 +3,7 @@ class ProductsController < ApplicationController
 
   # GET /products or /products.json
   def index
+    threshold = ENV["LOW_STOCK_THRESHOLD"].to_i
     @products = Product.includes(:category)
 
     if params[:search].present?
@@ -12,6 +13,7 @@ class ProductsController < ApplicationController
     if params[:category_id].present?
       @products = @products.where(category_id: params[:category_id])
     end
+    @low_stock_products = Product.where("stock <= ?", threshold)
   end
 
   # GET /products/1 or /products/1.json
