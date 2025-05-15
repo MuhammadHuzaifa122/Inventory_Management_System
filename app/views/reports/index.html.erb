@@ -1,0 +1,90 @@
+<div class="container mt-4">
+  <h2>Inventory Report</h2>
+
+  <div class="mb-4">
+    <label for="report-daterange" class="form-label"><h5>Select Date Range:</h5></label>
+    <input type="text" id="report-daterange" class="form-control" placeholder="Choose date range" />
+  </div>
+
+  <div id="report-results">
+  <% if @start_date && @end_date %>
+    <h4 class="mb-4">Report from <%= @start_date %> to <%= @end_date %></h4>
+
+    <!-- Stock In Section -->
+    <div class="card mb-4">
+      <div class="card-header bg-success text-white">
+        Stock In
+      </div>
+      <ul class="list-group list-group-flush">
+        <% if @stock_ins.any? %>
+          <% @stock_ins.each do |log| %>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span>
+                <strong><% if log.product.present? %>
+                    <%= log.product.name %> – <%= log.quantity %> units on <%= log.created_at.to_date %>
+                <% else %>
+                    <em>Product deleted or missing</em> – <%= log.quantity %> units on <%= log.created_at.to_date %>
+    <% end %> units
+              </span>
+              <span class="text-muted"><%= log.created_at.strftime('%B %d, %Y') %></span>
+            </li>
+          <% end %>
+        <% else %>
+          <li class="list-group-item text-muted">No stock in during this range.</li>
+        <% end %>
+      </ul>
+    </div>
+
+    <!-- Stock Out Section -->
+    <div class="card mb-4">
+      <div class="card-header bg-danger text-white">
+        Stock Out
+      </div>
+      <ul class="list-group list-group-flush">
+        <% if @stock_outs.any? %>
+          <% @stock_outs.each do |log| %>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span>
+                <strong><% if log.product.present? %>
+                    <%= log.product.name %> – <%= log.quantity %> units on <%= log.created_at.to_date %>
+                <% else %>
+                    <em>Product deleted or missing</em> – <%= log.quantity %> units on <%= log.created_at.to_date %>
+    <% end %> units
+              </span>
+              <span class="text-muted"><%= log.created_at.strftime('%B %d, %Y') %></span>
+            </li>
+          <% end %>
+        <% else %>
+          <li class="list-group-item text-muted">No stock out during this range.</li>
+        <% end %>
+      </ul>
+    </div>
+  <% else %>
+    <div class="alert alert-info">No records found for the selected date range.</div>
+  <% end %>
+</div>
+
+</div>
+<script>
+  function initDateRangePicker() {
+    const $picker = $('#report-daterange');
+    if ($picker.data('daterangepicker')) {
+      $picker.data('daterangepicker').remove();
+    }
+
+    $picker.daterangepicker({
+      locale: { format: 'YYYY-MM-DD' },
+      opens: 'right',
+      autoApply: false
+    }, function (start, end) {
+      // Redirect with selected date range
+      window.location.href = `/reports?start_date=${start.format('YYYY-MM-DD')}&end_date=${end.format('YYYY-MM-DD')}`;
+    });
+  }
+
+  document.addEventListener("turbo:load", initDateRangePicker);
+  document.addEventListener("DOMContentLoaded", initDateRangePicker);
+</script>
+
+
+

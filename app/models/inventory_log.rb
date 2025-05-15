@@ -1,6 +1,6 @@
 # app/models/inventory_log.rb
 class InventoryLog < ApplicationRecord
-  belongs_to :product
+  belongs_to :product, optional: true
   enum :operation, {
     stock_in: "stock_in",
     stock_out: "stock_out"

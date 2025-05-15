@@ -28,8 +28,9 @@
         <li class="nav-item">
           <%= link_to "Inventory History", inventory_logs_path, class: "nav-link" %>
         </li>
-
-
+        <li>
+          <%= link_to "Reports", reports_path, class: "nav-link" %>
+        </li>
         <li class="nav-item">
           <%= button_to 'Sign Out', destroy_user_session_path, method: :delete, class: "btn btn-link nav-link" %>
         </li>
