@@ -39,4 +39,20 @@ class Product < ApplicationRecord
       operation: "stock_in"
     )
     end
+    def self.import(file)
+      spreadsheet = Roo::Spreadsheet.open(file.path)
+      header = spreadsheet.row(1)
+
+      (2..spreadsheet.last_row).each do |i|
+        row = Hash [ [ header, spreadsheet.row(i) ].transpose ]
+        product = find_by(name: row["name"])
+
+        if product
+          stock_in = row["stock_in"].to_i
+          stock_out = row["stock_out"].to_i
+          product.stock += stock_in - stock_out
+          product.save
+        end
+      end
+    end
 end

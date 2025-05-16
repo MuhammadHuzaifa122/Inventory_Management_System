@@ -16,6 +16,16 @@ class ProductsController < ApplicationController
     @low_stock_products = Product.where("stock <= ?", threshold)
   end
 
+    def import
+      if params[:file].present?
+        import_from_file(params[:file])
+        redirect_to products_path, notice: "Products imported successfully!"
+      else
+        redirect_to products_path, alert: "Please select a file to import."
+      end
+    end
+
+
   # GET /products/1 or /products/1.json
   def show
   end
@@ -74,7 +84,36 @@ end
     @product = Product.find(params[:id])
   end
 
-  def product_params
-    params.require(:product).permit(:name, :sku, :description, :category_id, :price, :stock)
-  end
+  private
+
+    def import_from_file(file)
+      xlsx = Roo::Excelx.new(file.path)
+      header = xlsx.row(1).map(&:downcase)
+
+      name_idx = header.index("name")
+      stock_in_idx = header.index("stock in")
+      stock_out_idx = header.index("stock out")
+
+      (2..xlsx.last_row).each do |i|
+        row = xlsx.row(i)
+        product_name = row[name_idx]&.strip
+        stock_in = row[stock_in_idx].to_i
+        stock_out = row[stock_out_idx].to_i
+
+        next if product_name.blank?
+
+        product = Product.where("LOWER(name) = ?", product_name.downcase).first
+
+
+        if product
+          product.stock = product.stock.to_i + stock_in - stock_out
+          product.stock = 0 if product.stock < 0
+          product.save!
+        end
+      end
+    end
+
+    def product_params
+      params.require(:product).permit(:name, :sku, :description, :category_id, :price, :stock)
+    end
 end
