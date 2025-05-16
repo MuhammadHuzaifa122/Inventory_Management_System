@@ -16,14 +16,27 @@ class ProductsController < ApplicationController
     @low_stock_products = Product.where("stock <= ?", threshold)
   end
 
-    def import
-      if params[:file].present?
-        import_from_file(params[:file])
-        redirect_to products_path, notice: "Products imported successfully!"
-      else
-        redirect_to products_path, alert: "Please select a file to import."
-      end
-    end
+def import
+  file = params[:file]
+  return redirect_to products_path, alert: "Please upload a valid file." if file.blank?
+
+  extension = File.extname(file.original_filename).downcase
+
+  begin
+  case extension
+  when ".csv"
+    Product.import_from_csv(file)
+  when ".xlsx"
+    import_from_xlsx(file)
+  else
+    return redirect_to products_path, alert: "Unsupported file type. Please upload a .csv or .xlsx file."
+  end
+
+  redirect_to products_path, notice: "Products imported successfully!"
+  rescue
+  redirect_to products_path, alert: "There was an error importing the file. Please check your file format and try again."
+  end
+end
 
 
   # GET /products/1 or /products/1.json
@@ -86,34 +99,55 @@ end
 
   private
 
-    def import_from_file(file)
-      xlsx = Roo::Excelx.new(file.path)
-      header = xlsx.row(1).map(&:downcase)
+def import_from_xlsx(file)
+  spreadsheet = Roo::Excelx.new(file.path)
+  header = spreadsheet.row(1).map(&:downcase)
 
-      name_idx = header.index("name")
-      stock_in_idx = header.index("stock in")
-      stock_out_idx = header.index("stock out")
+  name_idx = header.index("name")
+  stock_in_idx = header.index("stock in")
+  stock_out_idx = header.index("stock out")
 
-      (2..xlsx.last_row).each do |i|
-        row = xlsx.row(i)
-        product_name = row[name_idx]&.strip
-        stock_in = row[stock_in_idx].to_i
-        stock_out = row[stock_out_idx].to_i
+  (2..spreadsheet.last_row).each do |i|
+    row = spreadsheet.row(i)
+    product_name = row[name_idx]&.strip
+    stock_in = row[stock_in_idx].to_i
+    stock_out = row[stock_out_idx].to_i
 
-        next if product_name.blank?
+    next if product_name.blank?
 
-        product = Product.where("LOWER(name) = ?", product_name.downcase).first
+    product = Product.where("LOWER(name) = ?", product_name.downcase).first
 
-
-        if product
-          product.stock = product.stock.to_i + stock_in - stock_out
-          product.stock = 0 if product.stock < 0
-          product.save!
-        end
-      end
+    if product
+      product.stock = [ product.stock.to_i + stock_in - stock_out, 0 ].max
+      product.save!
     end
+  end
+end
 
-    def product_params
-      params.require(:product).permit(:name, :sku, :description, :category_id, :price, :stock)
+
+  def product_params
+    params.require(:product).permit(:name, :sku, :description, :category_id, :price, :stock)
+  end
+
+# for .csv
+
+def self.import_from_csv(file)
+  CSV.foreach(file.path, headers: true) do |row|
+    row = row.to_h.transform_keys(&:downcase)
+    product_name = row["name"]&.strip
+    stock_in = row["stock in"].to_i
+    stock_out = row["stock out"].to_i
+
+    next if product_name.blank?
+
+    product = Product.where("LOWER(name) = ?", product_name.downcase).first
+    if product
+      product.stock += stock_in - stock_out
+      product.stock = 0 if product.stock.negative?
+      product.save!
+    else
+      Rails.logger.warn "Product not found: #{product_name}"
     end
+  end
+end
 end

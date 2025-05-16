@@ -19,18 +19,33 @@
     <h1 class="font-weight-bold">Products</h1>
   </div>
 
+<!-- CSV Import Form -->
 <%= form_with url: import_products_path, local: true, html: { multipart: true, class: "form-inline justify-content-end mb-3" } do %>
   <div class="form-group mr-2">
     <div class="custom-file">
-      <%= file_field_tag :file, accept: ".xlsx", class: "custom-file-input", id: "fileInput" %>
-      <%= label_tag :file, "Choose .xlsx file", class: "custom-file-label", for: "fileInput", style: "cursor: pointer;" %>
+      <%= file_field_tag :file, class: "custom-file-input", id: "csvFileInput" %>
+      <%= label_tag :file, "Choose .csv file", class: "custom-file-label", for: "csvFileInput", data: { default_label: "Choose .csv file" }, style: "cursor: pointer;" %>
+
     </div>
   </div>
-
   <div class="form-group">
     <%= submit_tag "Import Products", class: "btn btn-primary" %>
   </div>
 <% end %>
+
+<!-- XLSX Import Form -->
+<%= form_with url: import_products_path, local: true, html: { multipart: true, class: "form-inline justify-content-end mb-3" } do %>
+  <div class="form-group mr-2">
+    <div class="custom-file">
+      <%= file_field_tag :file, class: "custom-file-input", id: "xlsxFileInput" %>
+      <%= label_tag :file, "Choose .xlsx file", class: "custom-file-label", for: "xlsxFileInput", data: { default_label: "Choose .xlsx file" }, style: "cursor: pointer;" %>
+    </div>
+  </div>
+  <div class="form-group">
+    <%= submit_tag "Import Products", class: "btn btn-primary" %>
+  </div>
+<% end %>
+
 
   <%= render "search_form" %>
   
@@ -77,16 +92,32 @@
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
-    const input = document.getElementById("fileInput");
-    const label = document.querySelector('label[for="fileInput"]');
+    const initCustomFileLabel = (inputId) => {
+      const input = document.getElementById(inputId);
+      const label = document.querySelector(`label[for="${inputId}"]`);
 
-    input.addEventListener("change", function () {
-      const fileName = input.files[0]?.name;
-      if (fileName && label) {
-        label.textContent = fileName;
+      if (input && label) {
+        // Reset label to default text
+        label.textContent = label.dataset.defaultLabel;
+
+        // Update label when file is selected
+        input.addEventListener("change", function () {
+          const fileName = input.files[0]?.name;
+          if (fileName) {
+            label.textContent = fileName;
+          } else {
+            label.textContent = label.dataset.defaultLabel;
+          }
+        });
       }
-    });
+    };
+
+    initCustomFileLabel("csvFileInput");
+    initCustomFileLabel("xlsxFileInput");
   });
 </script>
+
+
+
 
 
