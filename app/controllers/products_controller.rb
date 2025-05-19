@@ -15,6 +15,8 @@ class ProductsController < ApplicationController
       @products = @products.where(category_id: params[:category_id])
     end
 
+    @products = @products.paginate(page: params[:page], per_page: 5)
+
     @low_stock_products = Product.where("stock <= ?", threshold)
   end
 

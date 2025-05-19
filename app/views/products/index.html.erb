@@ -81,6 +81,11 @@
         <% end %>
       </tbody>
     </table>
+
+  <nav class="pagination-wrapper my-4">
+    <%= will_paginate @products, class: "pagination justify-content-center" %>
+  </nav>
+
   <% else %>
     <p class="text-center text-muted">No products found.</p>
   <% end %>
