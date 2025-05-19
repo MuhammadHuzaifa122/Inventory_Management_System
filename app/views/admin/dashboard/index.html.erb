@@ -1,0 +1,11 @@
+<div class="p-6">
+  <h1 class="text-2xl font-bold mb-4">Admin Dashboard</h1>
+
+  <p class="mb-4">Welcome, <%= current_user.email %>!</p>
+
+  <div class="space-y-2">
+    <%= link_to "Manage Users", admin_users_path, class: "bg-blue-600 !text-black px-4 py-2 rounded hover:bg-blue-700" %>
+
+    <!-- Add more admin tools here if needed -->
+  </div>
+</div>
