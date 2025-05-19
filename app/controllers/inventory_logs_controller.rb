@@ -1,13 +1,15 @@
 class InventoryLogsController < ApplicationController
+  before_action :authenticate_user!
+  before_action :authorize_inventory_logs
+
   def new
     @inventory_log = InventoryLog.new
-    @products = Product.active  # Only active products (not soft-deleted)
+    @products = Product.active
   end
 
   def index
-    # Fetch only inventory logs related to active (non-deleted) products
     @inventory_logs = InventoryLog.joins(:product)
-                                  .where(products: { deleted_at: nil })  # Exclude soft-deleted products
+                                  .where(products: { deleted_at: nil })
                                   .includes(:product)
                                   .order(created_at: :desc)
   end
@@ -25,7 +27,7 @@ class InventoryLogsController < ApplicationController
 
       redirect_to products_path, notice: "Stock updated successfully."
     else
-      @products = Product.active  # Only show active products in the dropdown
+      @products = Product.active
       render :new
     end
   end
@@ -34,5 +36,9 @@ class InventoryLogsController < ApplicationController
 
   def inventory_log_params
     params.require(:inventory_log).permit(:product_id, :quantity, :operation)
+  end
+
+  def authorize_inventory_logs
+    authorize InventoryLog
   end
 end

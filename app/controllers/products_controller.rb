@@ -1,57 +1,7 @@
 class ProductsController < ApplicationController
-  load_and_authorize_resource
-  before_action :set_product, only: %i[ show edit update destroy ]
-
-  # GET /products/1 or /products/1.json
-  def show
-  end
-
-  # GET /products/new
-  def new
-    @product = Product.new
-  end
-
-  # GET /products/1/edit
-  def edit
-  end
-
-  # POST /products or /products.json
-  def create
-    @product = Product.new(product_params)
-
-    respond_to do |format|
-      if @product.save
-        format.html { redirect_to @product, notice: "Product was successfully created." }
-        format.json { render :show, status: :created, location: @product }
-      else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @product.errors, status: :unprocessable_entity }
-      end
-    end
-  end
-
-  # PATCH/PUT /products/1 or /products/1.json
-  def update
-    respond_to do |format|
-      if @product.update(product_params)
-        format.html { redirect_to @product, notice: "Product was successfully updated." }
-        format.json { render :show, status: :ok, location: @product }
-      else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @product.errors, status: :unprocessable_entity }
-      end
-    end
-  end
-
-  # DELETE /products/1 or /products/1.json
-  def destroy
-    @product.soft_delete
-
-    respond_to do |format|
-      format.html { redirect_to products_path, status: :see_other }
-      format.json { head :no_content }
-    end
-  end
+  before_action :authenticate_user!
+  before_action :set_product, only: %i[show edit update destroy]
+  before_action :authorize_resource
 
   def index
     threshold = ENV["LOW_STOCK_THRESHOLD"].to_i
@@ -64,23 +14,69 @@ class ProductsController < ApplicationController
     if params[:category_id].present?
       @products = @products.where(category_id: params[:category_id])
     end
+
     @low_stock_products = Product.where("stock <= ?", threshold)
   end
 
+  def show; end
 
-def import
-  ProductImportService.call(params[:file])
-  redirect_to products_path, notice: "Products imported successfully"
-rescue => e
-  redirect_to products_path, alert: "Import failed: #{e.message}"
-end
+  def new
+    @product = Product.new
+  end
 
+  def edit; end
 
+  def create
+    @product = Product.new(product_params)
+
+    if @product.save
+      redirect_to @product, notice: "Product was successfully created."
+    else
+      render :new, status: :unprocessable_entity
+    end
+  end
+
+  def update
+    if @product.update(product_params)
+      redirect_to @product, notice: "Product was successfully updated."
+    else
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
+  def destroy
+    @product.soft_delete
+    redirect_to products_path, status: :see_other
+  end
+
+  def import
+    ProductImportService.call(params[:file])
+    redirect_to products_path, notice: "Products imported successfully"
+  rescue => e
+    redirect_to products_path, alert: "Import failed: #{e.message}"
+  end
 
   private
 
   def set_product
-    @product = Product.find(params[:id])
+    @product = Product.find(params[:id]) if params[:id].present?
+  end
+
+  # 🔁 Centralized authorization
+  def authorize_resource
+    action = action_name.to_sym
+
+    case action
+    when :index
+      authorize Product
+    when :import
+      authorize Product, :import?
+    when :new, :create
+      @product ||= Product.new
+      authorize @product
+    when :show, :edit, :update, :destroy
+      authorize @product
+    end
   end
 
   def product_params

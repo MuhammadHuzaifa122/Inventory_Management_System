@@ -14,8 +14,14 @@
           <%= link_to "Products", products_path, class: 'nav-link' %>
         </li>
 
-        <% if can? :create, Product %>
-          <%= link_to 'New Product', new_product_path, class: 'nav-link' %>
+        <%# <% if can? :create, Product %>
+          <%# <%= link_to 'New Product', new_product_path, class: 'nav-link' %>
+        <%# <% end %>
+
+        <% if policy(Product).new? %>
+          <li class="nav-item">
+            <%= link_to 'New Product', new_product_path, class: 'nav-link' %>
+          </li>
         <% end %>
 
 
@@ -29,11 +35,17 @@
         <li class="nav-item">
           <%= link_to "Inventory History", inventory_logs_path, class: "nav-link" %>
         </li>
-        <% if can? :view_reports, :report %>
-          <li class="nav-item">
-            <%= link_to "View Reports", reports_path, class: "nav-link" %>
-          </li>
+
+        <%# <% if can? :view_reports, :report %>
+          <%# <li class="nav-item">
+            # <%= link_to "View Reports", reports_path, class: "nav-link" %>
+          <%# </li>
+        <% end %> 
+
+        <% if policy(:report).index? %>
+          <%= link_to "View Reports", reports_path, class: 'nav-link' %>
         <% end %>
+        
 
         <% if current_user&.admin? %>
           <li class="nav-item">
