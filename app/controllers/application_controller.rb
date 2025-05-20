@@ -1,12 +1,13 @@
 class ApplicationController < ActionController::Base
   before_action :authenticate_user!
 
-  include Pundit
+  include Pundit::Authorization
 
   # Rescue from unauthorized access
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 
   private
+
 
   def user_not_authorized
     flash[:alert] = "Access denied."

@@ -19,7 +19,10 @@ gem "tailwindcss-rails"
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 gem "jbuilder"
 
-gem "devise"
+# gem "devise"
+
+gem "package_json"
+
 
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
@@ -52,8 +55,7 @@ gem "pundit"
 
 gem "will_paginate", "~> 4.0", ">= 4.0.1"
 
-
-
+gem "react_on_rails"
 
 # gem "cancancan"
 
@@ -81,8 +83,8 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver"
   gem "factory_bot_rails"
-  gem "devise"
 end
 group :development, :test do
   gem "rspec-rails"
+  gem "devise"
 end
