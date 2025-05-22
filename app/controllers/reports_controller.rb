@@ -2,27 +2,30 @@ class ReportsController < ApplicationController
   before_action :authenticate_user!
   before_action :authorize_reports
 
-  def index
-    @categories = Category.all
-
-    if params[:start_date].present? && params[:end_date].present?
-      @start_date = Date.parse(params[:start_date])
-      @end_date = Date.parse(params[:end_date])
-      logs_scope = InventoryLog.includes(:product)
-                               .where(created_at: @start_date.beginning_of_day..@end_date.end_of_day)
-
-      if params[:category_id].present?
-        logs_scope = logs_scope.joins(:product).where(products: { category_id: params[:category_id] })
-        @selected_category = Category.find_by(id: params[:category_id])
-      end
-
-      @stock_ins = logs_scope.where(operation: "stock_in")
-      @stock_outs = logs_scope.where(operation: "stock_out")
-    else
-      @stock_ins = []
-      @stock_outs = []
-    end
+def index
+  if params[:start_date].present? && params[:end_date].present?
+    @start_date = Date.parse(params[:start_date])
+    @end_date = Date.parse(params[:end_date])
+    @stock_ins = InventoryLog.where(operation: "stock_in", created_at: @start_date.beginning_of_day..@end_date.end_of_day)
+    @stock_outs = InventoryLog.where(operation: "stock_out", created_at: @start_date.beginning_of_day..@end_date.end_of_day)
+  else
+    @stock_ins = []
+    @stock_outs = []
   end
+end
+
+def fetch
+  if params[:start_date].present? && params[:end_date].present?
+    start_date = Date.parse(params[:start_date])
+    end_date = Date.parse(params[:end_date])
+    @stock_ins = InventoryLog.includes(:product).where(operation: "stock_in", created_at: start_date.beginning_of_day..end_date.end_of_day)
+    @stock_outs = InventoryLog.includes(:product).where(operation: "stock_out", created_at: start_date.beginning_of_day..end_date.end_of_day)
+
+    render partial: "report_results", locals: { stock_ins: @stock_ins, stock_outs: @stock_outs, start_date: start_date, end_date: end_date }
+  else
+    render plain: "Invalid date range", status: :unprocessable_entity
+  end
+end
 
   private
 

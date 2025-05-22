@@ -1,12 +1,11 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <%= link_to "Inventory Management System", root_path, class: "navbar-brand" %>
 
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
+<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+  <span class="navbar-toggler-icon"></span>
+</button>
 
-  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+  <div class=" navbar-collapse show" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
 
       <% if user_signed_in? %>
@@ -23,7 +22,6 @@
             <%= link_to 'New Product', new_product_path, class: 'nav-link' %>
           </li>
         <% end %>
-
 
         <li class="nav-item">
           <%= link_to "Edit Profile", edit_user_registration_path, class: 'nav-link' %>

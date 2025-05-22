@@ -121,7 +121,6 @@ GEM
     erubi (1.13.1)
     et-orbi (1.2.11)
       tzinfo
-    execjs (2.10.0)
     factory_bot (6.5.1)
       activesupport (>= 6.1.0)
     factory_bot_rails (6.4.4)
@@ -262,12 +261,6 @@ GEM
     rake (13.2.1)
     rdoc (6.13.1)
       psych (>= 4.0.0)
-    react_on_rails (14.2.1)
-      addressable
-      connection_pool
-      execjs (~> 2.5)
-      rails (>= 5.2)
-      rainbow (~> 3.0)
     regexp_parser (2.10.0)
     reline (0.6.1)
       io-console (~> 0.5)
@@ -418,7 +411,6 @@ DEPENDENCIES
   puma (>= 5.0)
   pundit
   rails (~> 8.0.2)
-  react_on_rails
   roo
   rspec-rails
   rubocop-rails-omakase

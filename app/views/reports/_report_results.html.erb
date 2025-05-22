@@ -1,0 +1,51 @@
+<h4 class="mb-4">Report from <%= start_date %> to <%= end_date %></h4>
+
+<!-- Stock In Section -->
+<div class="card mb-4">
+  <div class="card-header bg-success text-white">Stock In</div>
+  <ul class="list-group list-group-flush">
+    <% if stock_ins.any? %>
+      <% stock_ins.each do |log| %>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span>
+            <strong>
+              <% if log.product.present? %>
+                <%= log.product.name %> – <%= log.quantity %> units
+              <% else %>
+                <em>Product deleted or missing</em> – <%= log.quantity %> units
+              <% end %>
+            </strong>
+          </span>
+          <span class="text-muted"><%= log.created_at.strftime('%B %d, %Y') %></span>
+        </li>
+      <% end %>
+    <% else %>
+      <li class="list-group-item text-muted">No stock in during this range.</li>
+    <% end %>
+  </ul>
+</div>
+
+<!-- Stock Out Section -->
+<div class="card mb-4">
+  <div class="card-header bg-danger text-white">Stock Out</div>
+  <ul class="list-group list-group-flush">
+    <% if stock_outs.any? %>
+      <% stock_outs.each do |log| %>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span>
+            <strong>
+              <% if log.product.present? %>
+                <%= log.product.name %> – <%= log.quantity %> units
+              <% else %>
+                <em>Product deleted or missing</em> – <%= log.quantity %> units
+              <% end %>
+            </strong>
+          </span>
+          <span class="text-muted"><%= log.created_at.strftime('%B %d, %Y') %></span>
+        </li>
+      <% end %>
+    <% else %>
+      <li class="list-group-item text-muted">No stock out during this range.</li>
+    <% end %>
+  </ul>
+</div>

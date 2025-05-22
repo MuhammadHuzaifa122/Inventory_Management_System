@@ -1,5 +1,4 @@
 Rails.application.routes.draw do
-  get 'hello_world', to: 'hello_world#index'
   namespace :admin do
     get "users/index"
     get "users/edit"
@@ -23,5 +22,7 @@ Rails.application.routes.draw do
   end
 
   get "reports", to: "reports#index"
+  get "reports/fetch", to: "reports#fetch"
+
   get "up" => "rails/health#show", as: :rails_health_check
 end

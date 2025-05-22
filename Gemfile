@@ -55,8 +55,6 @@ gem "pundit"
 
 gem "will_paginate", "~> 4.0", ">= 4.0.1"
 
-gem "react_on_rails"
-
 # gem "cancancan"
 
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
@@ -88,3 +86,5 @@ group :development, :test do
   gem "rspec-rails"
   gem "devise"
 end
+
+# gem "webpacker"

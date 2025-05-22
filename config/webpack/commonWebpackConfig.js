@@ -2,9 +2,7 @@
 // https://github.com/shakacode/react_on_rails_demo_ssr_hmr/blob/master/config/webpack/commonWebpackConfig.js
 
 // Common configuration applying to client and server configuration
-const { generateWebpackConfig, merge } = require('shakapacker');
-
-const baseClientWebpackConfig = generateWebpackConfig();
+const { webpackConfig: baseClientWebpackConfig, merge } = require('shakapacker');
 
 const commonOptions = {
   resolve: {
