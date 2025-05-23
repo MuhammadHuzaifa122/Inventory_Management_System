@@ -8,14 +8,18 @@ Rails.application.routes.draw do
   devise_for :users
   # get "home/index"
   root to: "home#index"
+
   resources :inventory_logs, only: [ :new, :create, :index ]
-  resources :products
+
   resources :inventory_logs, only: [ :new, :create ]
-  resources :products do
+
+resources :products do
   collection do
+    get :search
     post :import
   end
-  end
+end
+
   namespace :admin do
   get "dashboard", to: "dashboard#index"
   resources :users, only: [ :index, :edit, :update ]

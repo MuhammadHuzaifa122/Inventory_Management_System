@@ -16,9 +16,29 @@ class ProductsController < ApplicationController
     end
 
     @products = @products.paginate(page: params[:page], per_page: 5)
-
     @low_stock_products = Product.where("stock <= ?", threshold)
   end
+
+  def search
+    authorize Product, :index? # reusing same permission logic
+    threshold = ENV["LOW_STOCK_THRESHOLD"].to_i
+    @products = Product.includes(:category)
+
+    if params[:search].present?
+      @products = @products.where("name ILIKE ?", "%#{params[:search]}%")
+    end
+
+    if params[:category_id].present?
+      @products = @products.where(category_id: params[:category_id])
+    end
+
+    @products = @products.paginate(page: params[:page], per_page: 5)
+    @low_stock_products = Product.where("stock <= ?", threshold)
+
+    render partial: "product_table", locals: { products: @products }
+  end
+
+
 
   def show; end
 
