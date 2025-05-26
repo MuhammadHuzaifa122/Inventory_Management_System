@@ -1,8 +1,5 @@
 <% content_for :title, "Products" %>
 
-<%# <button id="my-button">Click Me</button> %>
-
-
 <% if @low_stock_products.any? %>
   <div class="alert alert-warning alert-dismissible fade show" role="alert">
     <strong>Low Stock Alert!</strong> The following products have low stock:

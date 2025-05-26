@@ -3,6 +3,7 @@ require "csv"
 class Product < ApplicationRecord
   has_many :inventory_logs, dependent: :destroy
   belongs_to :category
+  after_commit :send_email_after_delay, on: :create
 
   validates :category_id, presence: true
   validates :name, :sku, :price, :stock, presence: true
@@ -82,3 +83,12 @@ def self.import_from_csv(file)
   end
 end
 end
+
+private
+
+  def send_email_after_delay
+    Thread.new do
+      sleep 20 # 1 minute delay
+      ProductMailer.product_created_email(self).deliver_now
+    end
+  end
