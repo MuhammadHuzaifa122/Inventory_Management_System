@@ -38,15 +38,18 @@ class ProductsController < ApplicationController
     render partial: "product_table", locals: { products: @products }
   end
 
-
-
   def show; end
 
   def new
     @product = Product.new
+    @product.build_image
   end
 
-  def edit; end
+  def edit
+    @product = Product.find(params[:id])
+    @product.build_image unless @product.image.present?
+  end
+
 
   def create
     @product = Product.new(product_params)
@@ -102,6 +105,8 @@ class ProductsController < ApplicationController
   end
 
   def product_params
-    params.require(:product).permit(:name, :sku, :description, :category_id, :price, :stock)
+    params.require(:product).permit(
+      :name, :sku, :description, :category_id, :price, :stock, image_attributes: [ :file ]
+      )
   end
 end

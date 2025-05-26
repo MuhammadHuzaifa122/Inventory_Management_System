@@ -14,7 +14,12 @@
       <tbody>
         <% @products.each do |product| %>
           <tr>
-            <td><%= product.name %></td>
+          <td>
+            <% if product.image&.file&.attached? %>
+              <%= image_tag url_for(product.image.file.variant(resize_to_limit: [50, 50])), class: "rounded mr-2" %>
+            <% end %>
+            <%= product.name %>
+          </td>
             <td><%= product.sku %></td>
             <td><%= truncate(product.description, length: 50) %></td>
             <td><%= product.category&.name || "No Category" %></td>

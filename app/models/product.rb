@@ -2,6 +2,8 @@ require "csv"
 
 class Product < ApplicationRecord
   has_many :inventory_logs, dependent: :destroy
+  has_one :image, as: :imageable, dependent: :destroy
+  accepts_nested_attributes_for :image
   belongs_to :category
   after_commit :send_email_after_delay, on: :create
 
