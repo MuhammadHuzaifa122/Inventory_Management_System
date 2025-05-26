@@ -14,25 +14,37 @@
 <% end %>
 
 <script>
-  $(document).ready(function () {
-    $("#product-search-form").on("submit", function (e) {
-      e.preventDefault(); 
+ $(document).ready(function () {
+  let debounce;
 
-      const $form = $(this);
-      const url = $form.attr("action");
-      const data = $form.serialize();
+  $("#product-search-form").on("input", function () {
+    clearTimeout(debounce); 
 
-      $.ajax({
-        url: url,
-        method: "GET",
-        data: data,
-        success: function (response) {
-          $("#product-table").html(response);
-        },
-        error: function () {
-          alert("Search failed. Please try again.");
-        }
-      });
+    debounce = setTimeout(function () {
+      $("#product-search-form").submit();
+    }, 1500); 
+  });
+
+  $("#product-search-form").on("submit", function (e) {
+    e.preventDefault(); 
+
+    const $form = $(this);
+    const url = $form.attr("action");
+    const data = $form.serialize();
+
+    $.ajax({
+      url: url,
+      method: "GET",
+      data: data,
+      success: function (response) {
+        $("#product-table").html(response);
+      },
+      error: function () {
+        alert("Search failed. Please try again.");
+      }
     });
   });
+});
+
+
 </script>
