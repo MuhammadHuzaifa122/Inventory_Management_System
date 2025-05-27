@@ -29,5 +29,13 @@ Rails.application.routes.draw do
   get "reports", to: "reports#index"
   get "reports/fetch", to: "reports#fetch"
 
+  post "/create-checkout-session", to: "checkout#create"
+
+  get "/payment/success", to: "payments#success", as: :payment_success
+
+  get "products/payment_cancelled", to: "products#payment_cancelled"
+
+
+
   get "up" => "rails/health#show", as: :rails_health_check
 end

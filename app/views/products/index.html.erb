@@ -46,6 +46,8 @@
   </div>
 <% end %>
 
+<%= button_to "Pay $5 to Add a Product", create_checkout_session_path, method: :post, class: "btn btn-primary" %>
+
 <%= render "search_form" %>
 
 <div id="product-table">

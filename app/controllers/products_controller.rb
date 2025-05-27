@@ -20,7 +20,7 @@ class ProductsController < ApplicationController
   end
 
   def search
-    authorize Product, :index? # reusing same permission logic
+    authorize Product, :index?
     threshold = ENV["LOW_STOCK_THRESHOLD"].to_i
     @products = Product.includes(:category)
 
@@ -41,25 +41,49 @@ class ProductsController < ApplicationController
   def show; end
 
   def new
+    session_id = params[:session_id] || session[:product_payment_session_id]
+
+    if session_id.blank?
+      redirect_to products_path, alert: "Please pay $5 to add a product."
+      return
+    end
+
+    begin
+      stripe_session = Stripe::Checkout::Session.retrieve(session_id)
+    rescue Stripe::InvalidRequestError => e
+      redirect_to products_path, alert: "Invalid payment session."
+      Rails.logger.error("Stripe error: #{e.message}")
+      return
+    end
+
+    if stripe_session.payment_status != "paid"
+      redirect_to products_path, alert: "Payment not completed."
+      return
+    end
+
     @product = Product.new
     @product.build_image
   end
+
+
 
   def edit
     @product = Product.find(params[:id])
     @product.build_image unless @product.image.present?
   end
 
+def create
+  @product = Product.new(product_params)
 
-  def create
-    @product = Product.new(product_params)
-
-    if @product.save
-      redirect_to @product, notice: "Product was successfully created."
-    else
-      render :new, status: :unprocessable_entity
-    end
+  if @product.save
+    session.delete(:product_payment_session_id) # Clear the payment session after product creation
+    redirect_to @product, notice: "Product was successfully created."
+  else
+    flash.now[:alert] = "There were some issues with your submission."
+    render :new, status: :unprocessable_entity
   end
+end
+
 
   def update
     if @product.update(product_params)
@@ -81,13 +105,18 @@ class ProductsController < ApplicationController
     redirect_to products_path, alert: "Import failed: #{e.message}"
   end
 
+  def payment_cancelled
+    flash[:alert] = "Payment was cancelled."
+    redirect_to products_path
+  end
+
   private
+
 
   def set_product
     @product = Product.find(params[:id]) if params[:id].present?
   end
 
-  # 🔁 Centralized authorization
   def authorize_resource
     action = action_name.to_sym
 
@@ -107,6 +136,6 @@ class ProductsController < ApplicationController
   def product_params
     params.require(:product).permit(
       :name, :sku, :description, :category_id, :price, :stock, image_attributes: [ :file ]
-      )
+    )
   end
 end
