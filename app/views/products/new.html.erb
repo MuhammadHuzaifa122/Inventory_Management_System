@@ -17,55 +17,73 @@
     </div>
   <% end %>
 
-  <%= form_with(model: @product, local: true, html: { id: "productForm", multipart: true }, class: "space-y-4") do |form| %>
-    <div class="form-group">
-      <%= form.label :name, class: "font-semibold" %>
-      <%= form.text_field :name, id: "name", class: "form-control", placeholder: "Enter product name" %>
-      <span id="nameError" class="text-danger text-sm"></span>
-    </div>
+  <% if session[:product_payment_session_id].present? %>
+    <%= form_with(model: @product, local: true, html: { id: "productForm", multipart: true }, class: "space-y-4") do |form| %>
 
-    <div class="form-group">
-      <%= form.label :sku, class: "font-semibold" %>
-      <%= form.text_field :sku, id: "sku", class: "form-control", placeholder: "Unique SKU code" %>
-      <span id="skuError" class="text-danger text-sm"></span>
-    </div>
-
-    <div class="form-group">
-      <%= form.label :description, class: "font-semibold" %>
-      <%= form.text_area :description, rows: 3, id: "description", class: "form-control", placeholder: "Brief product description" %>
-      <span id="descriptionError" class="text-danger text-sm"></span>
-    </div>
-
-    <div class="form-group">
-      <%= form.label :category_id, "Category", class: "font-semibold" %>
-      <%= form.collection_select :category_id, Category.all, :id, :name, { prompt: "Select a category" }, { id: "category", class: "form-control" } %>
-      <span id="categoryError" class="text-danger text-sm"></span>
-    </div>
-
-    <div class="form-group">
-      <%= form.label :price, class: "font-semibold" %>
-      <%= form.number_field :price, id: "price", step: 0.01, class: "form-control", placeholder: "e.g. 499.99" %>
-      <span id="priceError" class="text-danger text-sm"></span>
-    </div>
-
-    <div class="form-group">
-      <%= form.label :stock, class: "font-semibold" %>
-      <%= form.number_field :stock, id: "stock", class: "form-control", placeholder: "Available stock quantity" %>
-      <span id="stockError" class="text-danger text-sm"></span>
-    </div>
-
-    <%= form.fields_for :image, @product.image || @product.build_image do |image_fields| %>
       <div class="form-group">
-        <%= image_fields.label :file, "Upload Product Image", class: "font-weight-bold" %>
-        <div class="custom-file">
-          <%= image_fields.file_field :file, class: "custom-file-input", id: "customFile" %>
-          <%= label_tag :customFile, "Choose file", class: "custom-file-label" %>
-        </div>
+        <%= form.label :name, class: "font-semibold" %>
+        <%= form.text_field :name, id: "name", class: "form-control", placeholder: "Enter product name" %>
+        <span id="nameError" class="text-danger text-sm"></span>
       </div>
+
+      <div class="form-group">
+        <%= form.label :sku, class: "font-semibold" %>
+        <%= form.text_field :sku, id: "sku", class: "form-control", placeholder: "Unique SKU code" %>
+        <span id="skuError" class="text-danger text-sm"></span>
+      </div>
+
+      <div class="form-group">
+        <%= form.label :description, class: "font-semibold" %>
+        <%= form.text_area :description, rows: 3, id: "description", class: "form-control", placeholder: "Brief product description" %>
+        <span id="descriptionError" class="text-danger text-sm"></span>
+      </div>
+
+      <div class="form-group">
+        <%= form.label :category_id, "Category", class: "font-semibold" %>
+        <%= form.collection_select :category_id, Category.all, :id, :name, { prompt: "Select a category" }, { id: "category", class: "form-control" } %>
+        <span id="categoryError" class="text-danger text-sm"></span>
+      </div>
+
+      <div class="form-group">
+        <%= form.label :price, class: "font-semibold" %>
+        <%= form.number_field :price, id: "price", step: 0.01, class: "form-control", placeholder: "e.g. 499.99" %>
+        <span id="priceError" class="text-danger text-sm"></span>
+      </div>
+
+      <div class="form-group">
+        <%= form.label :stock, class: "font-semibold" %>
+        <%= form.number_field :stock, id: "stock", class: "form-control", placeholder: "Available stock quantity" %>
+        <span id="stockError" class="text-danger text-sm"></span>
+      </div>
+
+      <%= form.fields_for :image, @product.image || @product.build_image do |image_fields| %>
+        <div class="form-group">
+          <%= image_fields.label :file, "Upload Product Image", class: "font-weight-bold" %>
+          <div class="custom-file">
+            <%= image_fields.file_field :file, class: "custom-file-input", id: "customFile" %>
+            <%= label_tag :customFile, "Choose file", class: "custom-file-label" %>
+          </div>
+        </div>
+      <% end %>
+
+      <div class="mt-4 flex justify-between">
+        <%= form.submit "Create Product", class: "btn btn-primary" %>
+        <%= link_to 'Back', products_path, class: "btn btn-outline-secondary" %>
+      </div>
+
     <% end %>
+  <% else %>
+    <!-- ❌ Form disabled until payment -->
+    <div class="alert alert-info mb-4">
+      You must pay $5 before adding a product.
+    </div>
 
     <div class="mt-4 flex justify-between">
-      <%= form.submit "Create Product", class: "btn btn-primary" %>
+      <%= button_to "Pay Now",
+            create_checkout_session_path,
+            method: :post,
+            form: { data: { turbo: false } },
+            class: "btn btn-success" %>
       <%= link_to 'Back', products_path, class: "btn btn-outline-secondary" %>
     </div>
   <% end %>
@@ -73,51 +91,47 @@
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
-    $('#productForm').submit(function (e) {
-      let isValid = true;
+    const form = document.getElementById("productForm");
+    if (!form) return;
 
-      // Clear previous errors
+    form.addEventListener("submit", function (e) {
+      let isValid = true;
       $('.text-danger').text('');
 
-      let name = $('#name').val().trim();
-      let sku = $('#sku').val().trim();
-      let description = $('#description').val().trim();
-      let category = $('#category').val();
-      let price = $('#price').val();
-      let stock = $('#stock').val();
+      const name = $('#name').val().trim();
+      const sku = $('#sku').val().trim();
+      const description = $('#description').val().trim();
+      const category = $('#category').val();
+      const price = $('#price').val();
+      const stock = $('#stock').val();
 
       if (name.length < 3) {
-        $('#nameError').text('Name must be atleast 3 characters.');
+        $('#nameError').text('Name must be at least 3 characters.');
         isValid = false;
       }
-
-      if (sku === '') {
+      if (!sku) {
         $('#skuError').text('SKU is required.');
         isValid = false;
       }
-
       if (description.length < 10) {
         $('#descriptionError').text('Description must be at least 10 characters.');
         isValid = false;
       }
-
       if (!category) {
         $('#categoryError').text('Please select a category.');
         isValid = false;
       }
-
-      if (price === '' || isNaN(price) || parseFloat(price) <= 0) {
+      if (!price || isNaN(price) || parseFloat(price) <= 0) {
         $('#priceError').text('Price must be a positive number.');
         isValid = false;
       }
-
-      if (stock === '' || isNaN(stock) || parseInt(stock) < 0) {
+      if (!stock || isNaN(stock) || parseInt(stock) < 0) {
         $('#stockError').text('Stock must be 0 or a positive number.');
         isValid = false;
       }
 
       if (!isValid) {
-        e.preventDefault(); // Prevent form submission
+        e.preventDefault();
       }
     });
   });

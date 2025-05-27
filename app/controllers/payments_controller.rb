@@ -6,12 +6,10 @@ class PaymentsController < ApplicationController
     stripe_session = Stripe::Checkout::Session.retrieve(session_id)
 
     if stripe_session.payment_status == "paid"
-      # 💾 Store it in Rails session
-      session[:product_payment_session_id] = session_id
-
+      session[:product_payment_session_id] = stripe_session.id
       redirect_to new_product_path, notice: "Payment successful! You can now add a product."
     else
-      redirect_to products_path, alert: "Payment was not successful."
+      redirect_to products_path, alert: "Payment failed. Please try again."
     end
   end
 end

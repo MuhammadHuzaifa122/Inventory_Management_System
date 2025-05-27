@@ -1,4 +1,5 @@
 class ProductsController < ApplicationController
+  skip_before_action :verify_authenticity_token, only: [ :create ]
   before_action :authenticate_user!
   before_action :set_product, only: %i[show edit update destroy]
   before_action :authorize_resource
@@ -40,32 +41,30 @@ class ProductsController < ApplicationController
 
   def show; end
 
-  def new
-    session_id = params[:session_id] || session[:product_payment_session_id]
+def new
+  session_id = params[:session_id]
 
-    if session_id.blank?
-      redirect_to products_path, alert: "Please pay $5 to add a product."
-      return
-    end
-
+  if session_id.present?
     begin
-      stripe_session = Stripe::Checkout::Session.retrieve(session_id)
+      session = Stripe::Checkout::Session.retrieve(session_id)
+
+      if session.payment_status == "paid"
+        session[:product_payment_session_id] = session_id
+      else
+        redirect_to new_product_path, alert: "Payment not completed."
+        return
+      end
+
     rescue Stripe::InvalidRequestError => e
-      redirect_to products_path, alert: "Invalid payment session."
       Rails.logger.error("Stripe error: #{e.message}")
+      redirect_to new_product_path, alert: "Invalid payment session."
       return
     end
-
-    if stripe_session.payment_status != "paid"
-      redirect_to products_path, alert: "Payment not completed."
-      return
-    end
-
-    @product = Product.new
-    @product.build_image
   end
 
-
+  @product = Product.new
+  @product.build_image
+end
 
   def edit
     @product = Product.find(params[:id])
@@ -75,12 +74,18 @@ class ProductsController < ApplicationController
 def create
   @product = Product.new(product_params)
 
+  if session[:product_payment_session_id].present?
+    stripe_session = Stripe::Checkout::Session.retrieve(session[:product_payment_session_id])
+
+    # Save full stripe session JSON into jsonb column
+    @product.stripe_payment_data = stripe_session.to_hash
+  end
+
   if @product.save
-    session.delete(:product_payment_session_id) # Clear the payment session after product creation
-    redirect_to @product, notice: "Product was successfully created."
+    session.delete(:product_payment_session_id)
+    redirect_to products_path, notice: "Product was successfully created."
   else
-    flash.now[:alert] = "There were some issues with your submission."
-    render :new, status: :unprocessable_entity
+    render :new
   end
 end
 

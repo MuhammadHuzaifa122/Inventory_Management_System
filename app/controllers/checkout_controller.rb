@@ -14,7 +14,7 @@ class CheckoutController < ApplicationController
       } ],
       mode: "payment",
       success_url: "#{root_url}payment/success?session_id={CHECKOUT_SESSION_ID}",
-      cancel_url: "#{root_url}products/payment_cancelled",
+      cancel_url: "#{root_url}products/new"
     )
 
     redirect_to session.url, allow_other_host: true
