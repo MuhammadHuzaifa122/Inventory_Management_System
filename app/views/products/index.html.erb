@@ -1,6 +1,6 @@
 <% content_for :title, "Products" %>
 
-<% if @low_stock_products.any? %>
+<% if @low_stock_products&.any? %>
   <div class="alert alert-warning alert-dismissible fade show" role="alert">
     <strong>Low Stock Alert!</strong> The following products have low stock:
     <ul style="list-style-type: disc; padding-left: 20px;">
@@ -49,7 +49,7 @@
 <%= render "search_form" %>
 
 <div id="product-table">
-  <%= render partial: "product_table", locals: { products: @products } %>
+  <%= render partial: "product_table", locals: { products: @products, api_products: @api_products } %>
 </div>
 
 </div>

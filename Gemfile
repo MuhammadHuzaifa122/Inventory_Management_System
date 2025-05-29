@@ -59,6 +59,9 @@ gem "image_processing"
 
 gem "stripe"
 
+gem "faraday"
+
+
 # gem "cancancan"
 
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]

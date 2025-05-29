@@ -1,24 +1,28 @@
-class ProductsController < ApplicationController
-  skip_before_action :verify_authenticity_token, only: [ :create ]
-  before_action :authenticate_user!
-  before_action :set_product, only: %i[show edit update destroy]
-  before_action :authorize_resource
+require "faraday"
 
+class ProductsController < ApplicationController
+  skip_before_action :verify_authenticity_token, if: -> { action_name == "create" }
+  before_action :authenticate_user!
+  before_action :set_product, if: -> { %w[show edit update destroy].include?(action_name) }
+  before_action :authorize_resource
+  include PaginationHelper
   def index
     threshold = ENV["LOW_STOCK_THRESHOLD"].to_i
-    @products = Product.includes(:category)
 
-    if params[:search].present?
-      @products = @products.where("name ILIKE ?", "%#{params[:search]}%")
-    end
+    db_products = Product.includes(:category)
 
-    if params[:category_id].present?
-      @products = @products.where(category_id: params[:category_id])
-    end
+    db_products = db_products.where("name ILIKE ?", "%#{params[:search]}%") if params[:search].present?
+    db_products = db_products.where(category_id: params[:category_id]) if params[:category_id].present?
 
-    @products = @products.paginate(page: params[:page], per_page: 5)
+    @products = format_and_paginate_products(
+      db_products: db_products,
+      page: params[:page]
+    )
+
     @low_stock_products = Product.where("stock <= ?", threshold)
   end
+end
+
 
   def search
     authorize Product, :index?
@@ -89,7 +93,6 @@ def create
   end
 end
 
-
   def update
     if @product.update(product_params)
       redirect_to @product, notice: "Product was successfully updated."
@@ -143,4 +146,3 @@ end
       :name, :sku, :description, :category_id, :price, :stock, image_attributes: [ :file ]
     )
   end
-end
