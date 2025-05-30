@@ -51,10 +51,7 @@ Devise.setup do |config|
     ENV["GITHUB_CLIENT_ID"],
     ENV["GITHUB_CLIENT_SECRET"],
     scope: "user:email",
-    callback_url: ENV["GITHUB_CALLBACK_URL"],
-    authorize_params: {
-      prompt: "login"
-    }
+    callback_url: ENV["GITHUB_CALLBACK_URL"]
   # Configure parameters from the request object used for authentication. Each entry
   # given should be a request method and it will automatically be passed to the
   # find_for_authentication method and considered in your model lookup. For instance,

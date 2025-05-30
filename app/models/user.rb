@@ -15,7 +15,6 @@ class User < ApplicationRecord
       password: Devise.friendly_token[0, 20],
       name: auth.info.name
     )
-
     user
   end
 end
