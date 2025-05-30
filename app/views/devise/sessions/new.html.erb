@@ -21,7 +21,10 @@
   <div class="actions">
     <%= f.submit "Log in", class: 'btn btn-secondary' %>
   </div>
+  
 <% end %>
 <br/>
+<%= button_to "Sign in with GitHub", user_github_omniauth_authorize_path, class: "btn btn-dark" %><br>
+<%= button_to "Sign in with Google", user_google_oauth2_omniauth_authorize_path, class: "btn btn-dark"  %>
 
 <%= render "devise/shared/links" %>

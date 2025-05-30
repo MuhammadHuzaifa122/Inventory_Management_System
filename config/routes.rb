@@ -6,7 +6,6 @@ Rails.application.routes.draw do
     get "users/update"
     get "dashboard/index"
   end
-  devise_for :users
   # get "home/index"
   root to: "home#index"
 
@@ -35,7 +34,7 @@ Rails.application.routes.draw do
 
   get "products/payment_cancelled", to: "products#payment_cancelled"
 
-
+  devise_for :users, controllers: { omniauth_callbacks: "users/omniauth_callbacks" }
 
   get "up" => "rails/health#show", as: :rails_health_check
 end

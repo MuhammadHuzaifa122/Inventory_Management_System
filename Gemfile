@@ -19,9 +19,13 @@ gem "tailwindcss-rails"
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 gem "jbuilder"
 
-# gem "devise"
-
 gem "package_json"
+
+gem "omniauth"
+
+gem "omniauth-github"
+
+gem "omniauth-google-oauth2"
 
 
 
@@ -60,6 +64,8 @@ gem "image_processing"
 gem "stripe"
 
 gem "faraday"
+
+gem "omniauth-rails_csrf_protection"
 
 
 # gem "cancancan"
